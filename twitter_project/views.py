@@ -5,10 +5,6 @@ from forms import InputURLForm
 
 
 def index(request):
-    return render(request, 'twitter_project/index.html')
-
-
-def processUrl(request):
     if request.method == 'POST':
         form = InputURLForm(request.POST)
         if form.is_valid():
