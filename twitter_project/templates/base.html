@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    {% load staticfiles %}
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' href='{% static 'vendor/bootstrap/css/bootstrap.min.css' %}'>
+    <link rel='stylesheet' type='text/css' href='{% static 'twitter_project/style.css' %}'>    
+    <script src='{% static 'vendor/jquery-1.11.3.min.js' %}'></script>
+    <script src='{% static 'vendor/bootstrap/js/bootstrap.min.js' %}'></script>
+    <title>Twitter Project</title>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div class='container-fluid'>
+      <div class='row-fluid'>
+        <div class='jumbotron'>
+            <h1>Fetch Twitter Handles</h1>
+            <p>Retrieve all Twitter handles present in a page</p>
+        </div>
+          {% block content %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>

@@ -26,12 +26,9 @@ except ImportError:
     pass
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# For development purposes, set DEBUG to True in a local_settings.py file, 
-# which we .gitignore. This file should be added in the same directory
-# that contains this settings.py file.
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
@@ -43,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'twitter_project',
 )
 
 MIDDLEWARE_CLASSES = (
