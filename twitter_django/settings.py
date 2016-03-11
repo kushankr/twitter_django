@@ -19,11 +19,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fnxz_@si8r6tctr8t5n$z^vy2mx+t#wmeb8whjcct5*9qvs#!4'
+# Keep your SECRET_KEY secret out of GitHub
+try:
+    from secret_key import *
+except ImportError:
+    pass
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# For development purposes, set DEBUG to True in a local_settings.py file, 
+# which we .gitignore. This file should be added in the same directory
+# that contains this settings.py file.
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -100,3 +106,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Any other variables local to the development environment should be
+# declared in the local_settings.py file and are imported here.
+try:
+    from local_settings import *
+except ImportError:
+    pass
