@@ -1,44 +1,54 @@
 $(function () {
 
-  var processResponse;
+  var processResponse, getTwitterHandles,
 
+  // This function matches '@...' 
+  // in link text and link parent text
+  getTwitterHandles = function (linkTextString, twitterHandles) {
+    var twitterHandlePattern;
+
+    linkTextString = $.trim(linkTextString);
+    twitterHandlePattern = linkTextString.match(/@\w+/g);
+    
+    if (twitterHandlePattern) {
+      for (var i in twitterHandlePattern) {
+        if (typeof twitterHandles[twitterHandlePattern[i]] == 'undefined') {
+          twitterHandles[twitterHandlePattern[i]] = '0';
+        }
+      }
+    }
+    return twitterHandles;
+  };
+
+  // This function returns all Twitter Handles
+  // present in a web page.
   processResponse = function (data, twitterFlag) {
-    var  $data, $anchors, arrLinks, urlPattern, twitterHandles, linkString;
-    var $data= $(data);
-    $anchors = $data.find('a');
-    arrLinks = [];
+    var anchors, twitterUrlPattern, twitterHandles, linkString;
+    
+    // Find all links that start with
+    // 'http:// or https:// twitter.com'
+    // process Link text and Link parent text
+    anchors = $(data).find('a');
     if (twitterFlag) {
-      urlPattern = new RegExp('^/','i');
+      twitterUrlPattern= new RegExp('^/','i');
     }
     else {
-      urlPattern = new RegExp('^(http|https)://twitter.com/','i');
+      twitterUrlPattern = new RegExp('^(http|https)://twitter.com/','i');
     }
-    $anchors.each(function () {        
-      linkString = $(this).attr('href');
-        if (urlPattern.test(linkString)) {
-          arrLinks.push($(this).text());
-          arrLinks.push($(this).parent().text());
+
+    twitterHandles = {};    
+    anchors.each(function () {            
+      linkString = $(this).attr('href');      
+      if (twitterUrlPattern.test(linkString)) {
+        twitterHandles = getTwitterHandles($(this).text(), twitterHandles);
+        twitterHandles = getTwitterHandles($(this).parent().text(), twitterHandles);
       }
-    });
-    twitterHandles = {};
-    $.each(arrLinks, function (i, val) {
-      linkString = $.trim(val);
-      match = linkString.match(/@\w+/g);
-      if (match) {
-        for (var i in match) {
-          if (typeof twitterHandles[match[i]] == 'undefined') {
-            twitterHandles[match[i]] = '0';
-          }
-        }
-      }          
     });
     return Object.keys(twitterHandles);
   };
 
   $('form').submit(function( event ) {
     var csrfToken, inputURL;
-
-    $('#twitter_handles_textarea').hide();
 
     // Get value of URL entered in Textbox
   	inputURL = $('#id_input_url').val();
@@ -55,36 +65,41 @@ $(function () {
         options.url = http + '//cors-anywhere.herokuapp.com/' + options.url;
       }
     });
-
-    // Make an AJAX call
-	  $.ajax({
+    
+    // Make an AJAX Post call on form submission
+    $.ajax({
       method: 'POST',
       url: '/twitter_project/',
       data:  $('form').serialize(),
       success: function (data) {
-        // If form is valid, data is sent as a JSON object
+        // If form is valid, 
+        // data is sent as a JSON object
         if(typeof data =='object') {
-          // remove any errors on successful validation
+          // remove any errors 
+          // on successful validation
           $('div.form-group').attr('class','form-group');
           $('label').remove();
           
-          // Shorthand for AJAX get call
+          // Make an AJAX get call to URL
           $.get(
-              data['input_url'],
-              function (response) {
-                var twitterHandles, urlPattern, isTwitter;
-                urlPattern = new RegExp('^(http|https)://twitter.com/','i');
-                if (urlPattern.test(data['input_url'])) {
-                  isTwitter = true;
-                }
-                else {
-                  isTwitter = false;
-                }
-                twitterHandles = processResponse(response, isTwitter);
-                $('#twitter_handles_textarea').val(twitterHandles.join('\n'));
-                $('#twitter_handles_textarea').show();
+            data['input_url'],
+            function (response) {
+              var twitterHandles, urlPattern, isTwitter;
+              urlPattern = new RegExp('^(http|https)://twitter.com/','i');
+              if (urlPattern.test(data['input_url'])) {
+                isTwitter = true;
+              }
+              else {
+                isTwitter = false;
+              }
+              twitterHandles = processResponse(response, isTwitter);
+              // Show and populate text area
+              // with Twitter Handles
+              $('#twitter_handles_textarea').val(twitterHandles.join('\n'));
+              $('#twitter_handles_textarea').show();
           });
         }
+        // If form is invalid
         else {
           $('#twitter_handles_textarea').hide();
           $('body').html(data);
