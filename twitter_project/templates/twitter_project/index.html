@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  {% load staticfiles %}
+  <script src='{% static 'twitter_project/index.js' %}'></script>
+{% endblock %}
+
 {% block content %}
 
   <form method='post'>{% csrf_token %}
@@ -12,7 +17,7 @@
               {{ error }}
           </label>
         {% endfor %}
-        <input type='text' class='form-control' name='{{ form.input_url.name }}' id='{{ form.input_url.id_for_label }}' value = '' placeholder='Please enter a URL' />
+        <input type='text' class='form-control' name='{{ form.input_url.name }}' id='id_input_url' value = '' placeholder='Please enter a URL' />
       </div>
       <button type='submit' class='btn btn-success'>Fetch!</button> 
     </div>
