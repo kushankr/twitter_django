@@ -3,5 +3,10 @@
 }
 
 body {
- background-color: #5bc0de;
+  background-color: #5bc0de;
+}
+
+#twitter_handles_textarea {
+  display: none;
+  resize: none;
 }

@@ -1,7 +1,44 @@
 $(function () {
 
+  var processResponse;
+
+  processResponse = function (data, twitterFlag) {
+    var  $data, $anchors, arrLinks, urlPattern, twitterHandles, linkString;
+    var $data= $(data);
+    $anchors = $data.find('a');
+    arrLinks = [];
+    if (twitterFlag) {
+      urlPattern = new RegExp('^/','i');
+    }
+    else {
+      urlPattern = new RegExp('^(http|https)://twitter.com/','i');
+    }
+    $anchors.each(function () {        
+      linkString = $(this).attr('href');
+        if (urlPattern.test(linkString)) {
+          arrLinks.push($(this).text());
+          arrLinks.push($(this).parent().text());
+      }
+    });
+    twitterHandles = {};
+    $.each(arrLinks, function (i, val) {
+      linkString = $.trim(val);
+      match = linkString.match(/@\w+/g);
+      if (match) {
+        for (var i in match) {
+          if (typeof twitterHandles[match[i]] == 'undefined') {
+            twitterHandles[match[i]] = '0';
+          }
+        }
+      }          
+    });
+    return Object.keys(twitterHandles);
+  };
+
   $('form').submit(function( event ) {
     var csrfToken, inputURL;
+
+    $('#twitter_handles_textarea').hide();
 
     // Get value of URL entered in Textbox
   	inputURL = $('#id_input_url').val();
@@ -35,10 +72,21 @@ $(function () {
           $.get(
               data['input_url'],
               function (response) {
-                  //console.log(response);
+                var twitterHandles, urlPattern, isTwitter;
+                urlPattern = new RegExp('^(http|https)://twitter.com/','i');
+                if (urlPattern.test(data['input_url'])) {
+                  isTwitter = true;
+                }
+                else {
+                  isTwitter = false;
+                }
+                twitterHandles = processResponse(response, isTwitter);
+                $('#twitter_handles_textarea').val(twitterHandles.join('\n'));
+                $('#twitter_handles_textarea').show();
           });
         }
         else {
+          $('#twitter_handles_textarea').hide();
           $('body').html(data);
         }
       },
