@@ -23,31 +23,27 @@ $(function () {
   // This function returns all Twitter Handles
   // present in a web page.
   processResponse = function (data, twitterFlag) {
-    var anchors, twitterUrlPattern, twitterHandles, linkString;
+    var anchors, twitterHandles;
     
     // Find all links that start with
     // 'http:// or https:// twitter.com'
     // process Link text and Link parent text
-    anchors = $(data).find('a');
     if (twitterFlag) {
-      twitterUrlPattern= new RegExp('^/','i');
+      anchors = $('a[href^="/"]', $(data));
     }
     else {
-      twitterUrlPattern = new RegExp('^(http|https)://twitter.com/','i');
+      anchors = $('a[href^="http://twitter.com"], a[href^="https://twitter.com"]', $(data));
     }
 
     twitterHandles = {};    
-    anchors.each(function () {            
-      linkString = $(this).attr('href');      
-      if (twitterUrlPattern.test(linkString)) {
-        twitterHandles = getTwitterHandles($(this).text(), twitterHandles);
-        twitterHandles = getTwitterHandles($(this).parent().text(), twitterHandles);
-      }
+    anchors.each(function () {
+      twitterHandles = getTwitterHandles($(this).text(), twitterHandles);
+      twitterHandles = getTwitterHandles($(this).parent().text(), twitterHandles);
     });
     return Object.keys(twitterHandles);
   };
 
-  $('form').submit(function( event ) {
+  $('form').submit(function (event) {
     var csrfToken, inputURL;
 
     // Get value of URL entered in Textbox
@@ -59,7 +55,7 @@ $(function () {
 
     // Source: http://stackoverflow.com/questions/15005500/loading-cross-domain-html-page-with-ajax
     // To enable cross domain access
-    $.ajaxPrefilter( function (options) {
+    $.ajaxPrefilter(function (options) {
       if (options.crossDomain && jQuery.support.cors) {
         var http = (window.location.protocol === 'http:' ? 'http:' : 'https:');
         options.url = http + '//cors-anywhere.herokuapp.com/' + options.url;
@@ -95,18 +91,30 @@ $(function () {
               twitterHandles = processResponse(response, isTwitter);
               // Show and populate text area
               // with Twitter Handles
-              $('#twitter_handles_textarea').val(twitterHandles.join('\n'));
-              $('#twitter_handles_textarea').show();
+              $('#twitter_handles_textarea').val(twitterHandles.join(' '));
+              $('#div_textarea').show();
           });
         }
         // If form is invalid
         else {
-          $('#twitter_handles_textarea').hide();
-          $('body').html(data);
+          $('#div_textarea').hide();
+          $('div.form-group').attr('class', 'form-group has-error');
+          $('.form-group').html($('.form-group', $(data)).html());
         }
       },
       error: function (data) {
       }
     });
   });
+  
+  $('#clear_text').on('click', function() {
+    // Hide Textarea
+    $('#div_textarea').hide();
+    // Set value of input field as empty
+    $('#id_input_url').val('');
+    // Remove any existing error messages
+    $('div.form-group').attr('class','form-group');
+    $('label').remove();
+  });
+
 });

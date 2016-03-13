@@ -6,7 +6,10 @@ body {
   background-color: #5bc0de;
 }
 
-#twitter_handles_textarea {
+#div_textarea {
   display: none;
+}
+
+#twitter_handles_textarea {
   resize: none;
 }
