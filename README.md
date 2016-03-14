@@ -30,3 +30,8 @@ Steps
 8. Navigate to the following URL:
 
   `http://localhost:8000/twitter_project`
+
+
+I have sourced certain elements of project layout (Layout of folders and files) 
+and template layout (HTML Layouts) from the following open-source repository:
+https://github.com/electology/approval_frame (Note: I am a contributor to this repository)

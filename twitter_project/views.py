@@ -3,7 +3,7 @@ from django.http import JsonResponse
 
 from forms import InputURLForm
 
-
+# https://docs.djangoproject.com/en/1.9/topics/forms/
 def index(request):
     data = {}
     if request.method == 'POST':
