@@ -20,10 +20,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # Keep your SECRET_KEY secret out of GitHub
+# Source: https://github.com/electology/approval_frame/blob/master/approval_frame/settings.py
+def generate_secret_key(filename):
+    from django.utils.crypto import get_random_string
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    key = get_random_string(50, chars)
+    key_file = open(filename, 'w')
+    key_file.write("SECRET_KEY = '"+key+"'")
+    key_file.close()
+
 try:
     from secret_key import *
 except ImportError:
-    pass
+    SETTINGS_DIR=os.path.abspath(os.path.dirname(__file__))
+    generate_secret_key(os.path.join(SETTINGS_DIR, 'secret_key.py'))
+    from secret_key import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

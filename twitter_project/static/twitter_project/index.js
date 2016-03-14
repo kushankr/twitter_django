@@ -47,8 +47,8 @@ $(function () {
     var csrfToken, inputURL;
 
     // Get value of URL entered in Textbox
-  	inputURL = $('#id_input_url').val();
-  	inputURL = $.trim(inputURL);
+    inputURL = $('#id_input_url').val();
+    inputURL = $.trim(inputURL);
 
     // Stop form from submitting through sync POST
     event.preventDefault();
@@ -70,7 +70,7 @@ $(function () {
       success: function (data) {
         // If form is valid, 
         // data is sent as a JSON object
-        if(typeof data =='object') {
+        if (typeof data =='object') {
           // remove any errors 
           // on successful validation
           $('div.form-group').attr('class','form-group');
@@ -99,7 +99,7 @@ $(function () {
         else {
           $('#div_textarea').hide();
           $('div.form-group').attr('class', 'form-group has-error');
-          $('.form-group').html($('.form-group', $(data)).html());
+          $('div.form-group').html($('div.form-group', $(data)).html());
         }
       },
       error: function (data) {
