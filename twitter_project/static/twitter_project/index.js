@@ -12,7 +12,7 @@ $(function () {
     
     if (twitterHandlePattern) {
       for (var i in twitterHandlePattern) {
-        if (typeof twitterHandles[twitterHandlePattern[i]] == 'undefined') {
+        if (typeof twitterHandles[twitterHandlePattern[i]] === 'undefined') {
           twitterHandles[twitterHandlePattern[i]] = '0';
         }
       }
@@ -70,7 +70,7 @@ $(function () {
       success: function (data) {
         // If form is valid, 
         // data is sent as a JSON object
-        if (typeof data =='object') {
+        if (typeof data === 'object') {
           // remove any errors 
           // on successful validation
           $('div.form-group').attr('class','form-group');
