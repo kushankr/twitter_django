@@ -91,8 +91,18 @@ $(function () {
               twitterHandles = processResponse(response, isTwitter);
               // Show and populate text area
               // with Twitter Handles
-              $('#twitter_handles_textarea').val(twitterHandles.join(' '));
+              if (twitterHandles.length === 0) {
+                $('#twitter_handles_textarea').val('No Twitter Handles Found!');
+              }
+              else {
+                $('#twitter_handles_textarea').val(twitterHandles.join(' '));
+              }  
               $('#div_textarea').show();
+          })
+          // Handle error when no web page exists at the input URL
+          .fail(function() {
+            $('#twitter_handles_textarea').val('Error! Web Page not found!');
+            $('#div_textarea').show();
           });
         }
         // If form is invalid
@@ -101,8 +111,6 @@ $(function () {
           $('div.form-group').attr('class', 'form-group has-error');
           $('div.form-group').html($('div.form-group', $(data)).html());
         }
-      },
-      error: function (data) {
       }
     });
   });
