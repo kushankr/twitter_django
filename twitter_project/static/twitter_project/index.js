@@ -53,12 +53,11 @@ $(function () {
     // Stop form from submitting through sync POST
     event.preventDefault();
 
-    // Source: http://stackoverflow.com/questions/15005500/loading-cross-domain-html-page-with-ajax
+    // Source: https://github.com/Rob--W/cors-anywhere
     // To enable cross domain access
     $.ajaxPrefilter(function (options) {
-      if (options.crossDomain && jQuery.support.cors) {
-        var http = (window.location.protocol === 'http:' ? 'http:' : 'https:');
-        options.url = http + '//cors-anywhere.herokuapp.com/' + options.url;
+      if (options.crossDomain && $.support.cors) {
+        options.url = 'https://cors-anywhere.herokuapp.com/' + options.url;
       }
     });
     
