@@ -7,6 +7,7 @@ Dependencies
 
 1. Python (2.7)
 2. Django (1.8.1)
+3. requests (2.9.1)
 
 
 Steps
