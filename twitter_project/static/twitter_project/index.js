@@ -1,10 +1,17 @@
 $(function () {
 
-  var processResponse, getTwitterHandles,
+  var processResponse, getTwitterHandles;
+
+  var divFormGroup, divAlert, divTextArea;
+
+  // Storing reference of divs to prevent repeat iteration of DOM
+  divFormGroup = $('div.form-group');
+  divAlert = $('div.alert');
+  divTextArea = $('#div_textarea');
 
   // This function matches '@...' 
   // in link text and link parent text
-  getTwitterHandles = function (linkTextString, twitterHandles) {
+  getTwitterHandles = function (linkTextString, twitterHandles, twitterHandlesString) {
     var twitterHandlePattern;
 
     linkTextString = $.trim(linkTextString);
@@ -13,17 +20,22 @@ $(function () {
     if (twitterHandlePattern) {
       for (var i in twitterHandlePattern) {
         if (typeof twitterHandles[twitterHandlePattern[i]] === 'undefined') {
+          twitterHandlesString += "<li class='list-group-item'>" + 
+          "<a href='http://twitter.com/" + twitterHandlePattern[i].substring(1) + "' target='_blank'>" + 
+          twitterHandlePattern[i] + "</a></li>";
           twitterHandles[twitterHandlePattern[i]] = '0';
         }
       }
     }
-    return twitterHandles;
+    return twitterHandles, twitterHandlesString;
   };
 
   // This function returns all Twitter Handles
   // present in a web page.
   processResponse = function (data, twitterFlag) {
-    var anchors, twitterHandles;
+    var anchors, twitterHandles, twitterHandlesString;
+
+    twitterHandlesString = '';
     
     // Find all links that start with
     // 'http:// or https:// twitter.com'
@@ -37,90 +49,86 @@ $(function () {
 
     twitterHandles = {};    
     anchors.each(function () {
-      twitterHandles = getTwitterHandles($(this).text(), twitterHandles);
-      twitterHandles = getTwitterHandles($(this).parent().text(), twitterHandles);
+      twitterHandles, twitterHandlesString = getTwitterHandles($(this).text(), twitterHandles, twitterHandlesString);
+      twitterHandles, twitterHandlesString = getTwitterHandles($(this).parent().text(), twitterHandles, twitterHandlesString);
     });
-    return Object.keys(twitterHandles);
+    return twitterHandlesString;
   };
 
   $('form').submit(function (event) {
-    var csrfToken, inputURL;
-
-    // Get value of URL entered in Textbox
-    inputURL = $('#id_input_url').val();
-    inputURL = $.trim(inputURL);
 
     // Stop form from submitting through sync POST
     event.preventDefault();
-
-    // Source: https://github.com/Rob--W/cors-anywhere
-    // To enable cross domain access
-    $.ajaxPrefilter(function (options) {
-      if (options.crossDomain && $.support.cors) {
-        options.url = 'https://cors-anywhere.herokuapp.com/' + options.url;
-      }
-    });
     
+    // Show loading gif on form submit
+    $('img').show();
+
     // Make an AJAX Post call on form submission
     $.ajax({
       method: 'POST',
       url: '/twitter_project/',
       data:  $('form').serialize(),
       success: function (data) {
+        var twitterHandlesString, urlPattern, isTwitter;
+
+        // Hide the dynamic elements once the AJAX call returns
+        $('img').hide();
+        divTextArea.hide();
+        divAlert.hide();
+
         // If form is valid, 
         // data is sent as a JSON object
         if (typeof data === 'object') {
           // remove any errors 
           // on successful validation
-          $('div.form-group').attr('class','form-group');
+          divFormGroup.attr('class','form-group');
           $('label').remove();
-          
-          // Make an AJAX get call to URL
-          $.get(
-            data['input_url'],
-            function (response) {
-              var twitterHandles, urlPattern, isTwitter;
-              urlPattern = new RegExp('^(http|https)://twitter.com/','i');
-              if (urlPattern.test(data['input_url'])) {
-                isTwitter = true;
-              }
-              else {
-                isTwitter = false;
-              }
-              twitterHandles = processResponse(response, isTwitter);
-              // Show and populate text area
-              // with Twitter Handles
-              if (twitterHandles.length === 0) {
-                $('#twitter_handles_textarea').val('No Twitter Handles Found!');
-              }
-              else {
-                $('#twitter_handles_textarea').val(twitterHandles.join(' '));
-              }  
-              $('#div_textarea').show();
-          })
-          // Handle error when no web page exists at the input URL
-          .fail(function() {
-            $('#twitter_handles_textarea').val('Error! Web Page not found!');
-            $('#div_textarea').show();
-          });
+
+          // if form has no errors, parse the HTML
+          if (typeof data['error'] === 'undefined') {           
+            urlPattern = new RegExp('^(http|https)://twitter.com/','i');
+            if (urlPattern.test(data['input_url'])) {
+              isTwitter = true;
+            }
+            else {
+              isTwitter = false;
+            }
+            // Extract twitter handles (hyperlinks)
+            twitterHandlesString = processResponse(data['html'], isTwitter);
+            // If no twitter handles are present
+            // Display an alert box       
+            if (twitterHandlesString.length === 0) {
+              divAlert.text('No Twitter Handles Found!').show();
+            }
+            // Show and populate text area
+            // with Twitter Handles
+            else {
+              $('#twitter_handles_ul').empty().append(twitterHandlesString);
+              divTextArea.show();
+            }
+          }
+          // If get request does not succeed, show an error message
+          else {
+            divAlert.text(data['error']).show();
+          }
         }
         // If form is invalid
         else {
-          $('#div_textarea').hide();
-          $('div.form-group').attr('class', 'form-group has-error');
-          $('div.form-group').html($('div.form-group', $(data)).html());
+          divFormGroup.attr('class', 'form-group has-error').html($('div.form-group', $(data)).html());          
         }
       }
     });
   });
   
   $('#clear_text').on('click', function() {
-    // Hide Textarea
-    $('#div_textarea').hide();
+    // Hide Textarea, Alert Box, and Loading Image
+    $('img').hide();
+    divTextArea.hide();
+    divAlert.hide();
     // Set value of input field as empty
     $('#id_input_url').val('');
     // Remove any existing error messages
-    $('div.form-group').attr('class','form-group');
+    divFormGroup.attr('class','form-group');
     $('label').remove();
   });
 
